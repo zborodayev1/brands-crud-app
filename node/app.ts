@@ -1,10 +1,10 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
-import { connectDB } from './config/db.js';
-import * as env from './config/env.js';
-import AuthRouter from './routes/auth.router.js';
-import BrandRouter from './routes/brand.router.js';
+import { connectDB } from './config/db';
+import * as env from './config/env';
+import AuthRouter from './routes/auth.router';
+import BrandRouter from './routes/brand.router';
 
 await connectDB();
 

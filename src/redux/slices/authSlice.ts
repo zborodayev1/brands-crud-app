@@ -1,9 +1,24 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
-import axios from '../req';
-import { signUpSchema } from '../validators/auth.validator';
+import { SignInPayload, SignUpPayload } from '../../interfaces/auth.interface';
+import { User } from '../../interfaces/user.interface';
+import api from '../api';
+import {
+  signInResponseSchema,
+  signInSchema,
+  signUpResponseSchema,
+  signUpSchema,
+} from '../validators/auth.validator';
 
-const initialState = {
+interface AuthState {
+  user: User | null;
+  isAuth: boolean;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  error: string | null;
+  loading: boolean;
+}
+
+const initialState: AuthState = {
   user: null,
   isAuth: false,
   status: 'idle',
@@ -13,19 +28,23 @@ const initialState = {
 
 export const signUp = createAsyncThunk(
   'notifications/signUp',
-  async (payload, { rejectWithValue }) => {
-    const validatePayload = signUpSchema.safeParse(payload);
-    if (!validatePayload.success) {
-      return rejectWithValue(validatePayload.error.errors);
-    }
-    try {
-      const { data } = await axios.post(`/auth/sign-up`, validatePayload.data);
 
-      const validateData = signUpResponseSchema.safeParse(data);
-      if (!validateData.success) {
-        return rejectWithValue(validateData.error.errors);
+  async (payload: SignUpPayload, { rejectWithValue }) => {
+    const validated = signUpSchema.safeParse(payload);
+
+    if (!validated.success) {
+      return rejectWithValue(validated.error.flatten().fieldErrors);
+    }
+
+    try {
+      const { data } = await api.post(`/auth/sign-up`, validated.data);
+
+      const parsedData = signUpResponseSchema.safeParse(data);
+      if (!parsedData.success) {
+        return rejectWithValue(parsedData.error.flatten().fieldErrors);
       }
-      return validateData.data;
+
+      return parsedData.data;
     } catch (error) {
       if (error instanceof AxiosError) {
         return rejectWithValue(error.response?.data || 'Failed to sign up');
@@ -36,22 +55,39 @@ export const signUp = createAsyncThunk(
   },
 );
 
-export const signIn = createAsyncThunk('auth/signIn', async (payload, { rejectWithValue }) => {
-  try {
-    const { data } = await axios.post(`/auth/sign-in`, payload);
-    return data;
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      return rejectWithValue(error.response?.data || 'Failed to sign in');
-    } else {
-      return rejectWithValue('An unknown error occurred');
+export const signIn = createAsyncThunk(
+  'auth/signIn',
+
+  async (payload: SignInPayload, { rejectWithValue }) => {
+    const validated = signInSchema.safeParse(payload);
+
+    if (!validated.success) {
+      return rejectWithValue(validated.error.flatten().fieldErrors);
     }
-  }
-});
+
+    try {
+      const { data } = await api.post(`/auth/sign-in`, validated.data);
+
+      const parsed = signInResponseSchema.safeParse(data);
+
+      if (!parsed.success) {
+        return rejectWithValue(parsed.error.flatten().fieldErrors);
+      }
+
+      return parsed.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data || 'Failed to sign in');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
+    }
+  },
+);
 
 export const signOut = createAsyncThunk('auth/signOut', async (_, { rejectWithValue }) => {
   try {
-    const { data } = await axios.post(`/auth/sign-out`);
+    const { data } = await api.post(`/auth/sign-out`);
     return data;
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -81,7 +117,7 @@ const authSlice = createSlice({
       })
       .addCase(signUp.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload;
+        state.error = action.payload as string;
       })
       .addCase(signIn.pending, (state) => {
         state.status = 'loading';
@@ -96,7 +132,7 @@ const authSlice = createSlice({
       })
       .addCase(signIn.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload;
+        state.error = action.payload as string;
       })
 
       .addCase(signOut.pending, (state) => {
@@ -112,7 +148,7 @@ const authSlice = createSlice({
       })
       .addCase(signOut.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload;
+        state.error = action.payload as string;
       });
   },
 });

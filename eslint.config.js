@@ -17,6 +17,17 @@ export default [
         sourceType: 'module',
       },
     },
+  },
+  {
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        project: './tsconfig.json',
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
     plugins: {
       react,
       'react-hooks': reactHooks,

@@ -1,16 +1,17 @@
 import bcrypt from 'bcrypt';
+import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import * as env from '../config/env.js';
-import { hashPasswordInWorker } from '../lib/hashPasswordInWorker.js';
-import { UserModel } from '../models/user.model.js';
-import { sanitizeUser } from '../utils/sanitizeUser.js';
-import { signInSchema, signUpSchema } from '../validators/auth.validator.js';
+import * as env from '../config/env';
+import { hashPasswordInWorker } from '../lib/hashPasswordInWorker';
+import { UserModel } from '../models/user.model';
+import { sanitizeUser } from '../utils/sanitizeUser';
+import { signInSchema, signUpSchema } from '../validators/auth.validator';
 
-export const signUp = async (req, res) => {
+export const signUp = async (req: Request, res: Response) => {
   const validateData = signUpSchema.safeParse(req.body);
 
   if (!validateData.success) {
-    return res.status(400).json({ errors: validateData.error.errors });
+    return res.status(400).json({ errors: validateData.error });
   }
 
   const { fullName, email, password } = validateData.data;
@@ -44,7 +45,7 @@ export const signUp = async (req, res) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: env.NODE_ENV === 'production',
-      sameSite: 'Lax',
+      sameSite: 'lax',
       maxAge: 14 * 24 * 60 * 60 * 1000,
     });
 
@@ -57,11 +58,11 @@ export const signUp = async (req, res) => {
   }
 };
 
-export const signIn = async (req, res) => {
+export const signIn = async (req: Request, res: Response) => {
   const validateData = signInSchema.safeParse(req.body);
 
   if (!validateData.success) {
-    return res.status(400).json({ errors: validateData.error.errors });
+    return res.status(400).json({ errors: validateData.error });
   }
 
   const { email, password } = validateData.data;
@@ -90,7 +91,7 @@ export const signIn = async (req, res) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: env.NODE_ENV === 'production',
-      sameSite: 'Lax',
+      sameSite: 'lax',
       maxAge: 14 * 24 * 60 * 60 * 1000,
     });
 
@@ -103,7 +104,7 @@ export const signIn = async (req, res) => {
   }
 };
 
-export const signOut = (req, res) => {
+export const signOut = (req: Request, res: Response) => {
   res.clearCookie('token');
   res.status(200).json({ message: 'Logout successful!' });
 };

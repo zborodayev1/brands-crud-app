@@ -1,6 +1,14 @@
 import fs from 'fs';
 import path from 'path';
-import winston from 'winston';
+import winston, { LeveledLogMethod, Logger } from 'winston';
+
+interface CustomLogger extends Logger {
+  DB: LeveledLogMethod;
+  worker: LeveledLogMethod;
+  success: LeveledLogMethod;
+  fail: LeveledLogMethod;
+  code_error: LeveledLogMethod;
+}
 
 const customLevels = {
   levels: {
@@ -30,7 +38,7 @@ if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir);
 }
 
-const levelFilter = (allowedLevels) =>
+const levelFilter = (allowedLevels: string | string[]) =>
   winston.format((info) => {
     return allowedLevels.includes(info.level) ? info : false;
   });
@@ -67,4 +75,4 @@ export const logger = winston.createLogger({
       ),
     }),
   ],
-});
+}) as CustomLogger;

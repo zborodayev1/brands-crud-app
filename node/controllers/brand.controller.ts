@@ -1,15 +1,12 @@
-import { BrandModel } from '../models/brand.model.js';
-import {
-  brandIdSchema,
-  brandQuerySchema,
-  createBrandSchema,
-} from '../validators/brand.validator.js';
+import { Request, Response } from 'express';
+import { BrandModel } from '../models/brand.model';
+import { brandIdSchema, brandQuerySchema, createBrandSchema } from '../validators/brand.validator';
 
-export const createBrand = async (req, res) => {
+export const createBrand = async (req: Request, res: Response) => {
   const validateData = createBrandSchema.safeParse(req.body);
 
   if (!validateData.success) {
-    return res.status(400).json({ errors: validateData.error.errors });
+    return res.status(400).json({ errors: validateData.error });
   }
 
   const { name, description, logoUrl } = validateData.data;
@@ -30,11 +27,11 @@ export const createBrand = async (req, res) => {
   }
 };
 
-export const getBrands = async (req, res) => {
+export const getBrands = async (req: Request, res: Response) => {
   const validateQuery = brandQuerySchema.safeParse(req.query);
 
   if (!validateQuery.success) {
-    return res.status(400).json({ errors: validateQuery.error.errors });
+    return res.status(400).json({ errors: validateQuery.error });
   }
 
   const {
@@ -48,7 +45,7 @@ export const getBrands = async (req, res) => {
   const skip = (page - 1) * limit;
   const sortDirection = sortOrder === 'asc' ? 1 : -1;
 
-  const filter = {};
+  const filter: Record<string, any> = {};
   if (search) {
     filter.name = { $regex: search, $options: 'i' };
   }
@@ -76,11 +73,11 @@ export const getBrands = async (req, res) => {
   }
 };
 
-export const getBrandById = async (req, res) => {
+export const getBrandById = async (req: Request, res: Response) => {
   const validateQuery = brandIdSchema.safeParse(req.params);
 
   if (!validateQuery.success) {
-    return res.status(400).json({ errors: validateQuery.error.errors });
+    return res.status(400).json({ errors: validateQuery.error });
   }
 
   const { id } = validateQuery.data;
@@ -98,16 +95,16 @@ export const getBrandById = async (req, res) => {
   }
 };
 
-export const updateBrand = async (req, res) => {
+export const updateBrand = async (req: Request, res: Response) => {
   const validateQuery = brandIdSchema.safeParse(req.params);
   const validateData = createBrandSchema.safeParse(req.body);
 
   if (!validateData.success) {
-    return res.status(400).json({ errors: validateData.error.errors });
+    return res.status(400).json({ errors: validateData.error });
   }
 
   if (!validateQuery.success) {
-    return res.status(400).json({ errors: validateQuery.error.errors });
+    return res.status(400).json({ errors: validateQuery.error });
   }
 
   const { id } = validateQuery.data;
@@ -136,11 +133,11 @@ export const updateBrand = async (req, res) => {
   }
 };
 
-export const deleteBrand = async (req, res) => {
+export const deleteBrand = async (req: Request, res: Response) => {
   const validateQuery = brandIdSchema.safeParse(req.params);
 
   if (!validateQuery.success) {
-    return res.status(400).json({ errors: validateQuery.error.errors });
+    return res.status(400).json({ errors: validateQuery.error });
   }
 
   const { id } = validateQuery.data;
