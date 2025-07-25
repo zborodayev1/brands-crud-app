@@ -1,9 +1,24 @@
 import { Edit2, Eye, Plus, Trash2 } from 'lucide-react';
-import { Brand } from '../../interfaces/brand.interface';
-import { useAppSelector } from '../../redux/store';
+import { Link, useNavigate } from 'react-router-dom';
+import { Brand } from '../../../interfaces/brand.interface';
+import { deleteBrand, getBrands } from '../../../redux/slices/brand.slice';
+import { useAppDispatch, useAppSelector } from '../../../redux/store';
 
 const Admin = () => {
   const brands = useAppSelector((state) => state.brands.brands);
+  const loading = useAppSelector((state) => state.brands.loading);
+  const dispatch = useAppDispatch();
+  const nav = useNavigate();
+
+  const handleDelete = async (id: string) => {
+    if (id) {
+      const resultAction = await dispatch(deleteBrand(id));
+      if (deleteBrand.fulfilled.match(resultAction)) {
+        nav('/admin');
+        dispatch(getBrands());
+      }
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-8 py-8">
@@ -13,14 +28,17 @@ const Admin = () => {
           <p className="mt-2 text-gray-600">Добавляйте, редактируйте и удаляйте бренды</p>
         </div>
 
-        <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+        <Link
+          to="/create-brand"
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
           <Plus className="w-5 h-5 mr-2" />
           Добавить бренд
-        </button>
+        </Link>
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        {brands.length === 0 ? (
+        {brands.length === 0 && !loading ? (
           <div className="text-center py-12">
             <Plus className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">Нет брендов</h3>
@@ -77,19 +95,24 @@ const Admin = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-2">
-                        <button
+                        <Link
+                          to={`/brand/${brand._id}`}
                           className="p-1 text-gray-600 hover:text-gray-800 transition-colors"
                           title="Просмотр"
                         >
                           <Eye className="w-4 h-4" />
-                        </button>
-                        <button
+                        </Link>
+                        <Link
+                          to={`/update-brand/${brand._id}`}
                           className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
                           title="Редактировать"
                         >
                           <Edit2 className="w-4 h-4" />
-                        </button>
+                        </Link>
                         <button
+                          onClick={() => {
+                            handleDelete(brand._id);
+                          }}
                           className="p-1 text-red-600 hover:text-red-800 transition-colors"
                           title="Удалить"
                         >

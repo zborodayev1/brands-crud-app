@@ -180,5 +180,4 @@ export const deleteBrand = async (req: Request, res: Response) => {
     logger.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
-  // Removed custom dayjs function, using dayjs library import instead.
 };

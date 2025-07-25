@@ -1,18 +1,11 @@
 import { Calendar, Image } from 'lucide-react';
-import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Brand } from '../../interfaces/brand.interface';
-import { getBrands } from '../../redux/slices/brand.slice';
-import { useAppDispatch, useAppSelector } from '../../redux/store';
+import { Brand } from '../../../interfaces/brand.interface';
+import { useAppSelector } from '../../../redux/store';
 
 export const Home = () => {
-  const dispatch = useAppDispatch();
   const brands = useAppSelector((state) => state.brands.brands);
   const loading = useAppSelector((state) => state.brands.loading);
-
-  useEffect(() => {
-    dispatch(getBrands());
-  }, [dispatch]);
 
   return (
     <div className="max-w-8xl mx-auto px-4 py-8">
@@ -55,10 +48,7 @@ export const Home = () => {
                 <p className="text-gray-600 mb-4 leading-relaxed">{brand.description}</p>
                 <div className="flex items-center text-sm text-gray-500">
                   <Calendar className="w-4 h-4 mr-2" />
-                  Создан:{' '}
-                  {typeof brand.createdAt === 'string'
-                    ? brand.createdAt
-                    : brand.createdAt.toLocaleDateString('ru-RU')}
+                  Создан: {brand.createdAt}
                 </div>
               </Link>
             </div>

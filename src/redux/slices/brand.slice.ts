@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
-import { Brand } from '../../interfaces/brand.interface';
+import { Brand, brandPayload } from '../../interfaces/brand.interface';
 import api from '../api';
 import {
   createBrandResponseSchema,
@@ -47,7 +47,7 @@ export const getBrands = createAsyncThunk('brand/getBrands', async (_, { rejectW
 
 export const createBrand = createAsyncThunk(
   'brand/createBrand',
-  async (payload: Brand, { rejectWithValue }) => {
+  async (payload: brandPayload, { rejectWithValue }) => {
     const validated = createBrandSchema.safeParse(payload);
 
     if (!validated.success) {
@@ -76,7 +76,7 @@ export const createBrand = createAsyncThunk(
 
 export const updateBrand = createAsyncThunk(
   'brand/updateBrand',
-  async (payload: { id: string; brand: Brand }, { rejectWithValue }) => {
+  async (payload: { id: string; brand: brandPayload }, { rejectWithValue }) => {
     const validated = updateBrandSchema.safeParse(payload.brand);
 
     if (!validated.success) {
@@ -84,7 +84,7 @@ export const updateBrand = createAsyncThunk(
     }
 
     try {
-      const { data } = await api.put(`/brand/${payload.id}`, validated.data);
+      const { data } = await api.patch(`/brand/${payload.id}`, validated.data);
 
       const parsedData = updateBrandResponseSchema.safeParse(data);
 

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const createBrandSchema = z.object({
   name: z.string().min(1, 'Brand name is required'),
-  description: z.string().optional(),
+  description: z.string().max(100).optional(),
   logoUrl: z.string().url('Invalid URL format').optional(),
 });
 
