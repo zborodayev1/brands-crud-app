@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { Request, Response } from 'express';
 import { BrandModel } from '../models/brand.model';
+import { logger } from '../utils/logger';
 import { brandIdSchema, brandQuerySchema, createBrandSchema } from '../validators/brand.validator';
 
 export const createBrand = async (req: Request, res: Response) => {
@@ -28,6 +29,7 @@ export const createBrand = async (req: Request, res: Response) => {
       message: 'Brand created successfully!',
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -78,6 +80,7 @@ export const getBrands = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -106,6 +109,7 @@ export const getBrandById = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -148,6 +152,7 @@ export const updateBrand = async (req: Request, res: Response) => {
       message: 'Brand updated successfully!',
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -172,6 +177,7 @@ export const deleteBrand = async (req: Request, res: Response) => {
       message: 'Brand deleted successfully!',
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
   // Removed custom dayjs function, using dayjs library import instead.

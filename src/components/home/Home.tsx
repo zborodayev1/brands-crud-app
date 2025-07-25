@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from '../../redux/store';
 export const Home = () => {
   const dispatch = useAppDispatch();
   const brands = useAppSelector((state) => state.brands.brands);
+  const loading = useAppSelector((state) => state.brands.loading);
 
   useEffect(() => {
     dispatch(getBrands());
@@ -22,7 +23,7 @@ export const Home = () => {
         </p>
       </div>
 
-      {brands.length === 0 ? (
+      {brands.length === 0 && !loading ? (
         <div className="text-center py-12">
           <div className="w-24 h-24 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
             <Calendar className="w-12 h-12 text-gray-400" />

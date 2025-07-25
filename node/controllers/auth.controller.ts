@@ -2,8 +2,8 @@ import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import * as env from '../config/env';
-import { hashPasswordInWorker } from '../lib/hashPasswordInWorker';
 import { UserModel } from '../models/user.model';
+import { logger } from '../utils/logger';
 import { sanitizeUser } from '../utils/sanitizeUser';
 import { signInSchema, signUpSchema } from '../validators/auth.validator';
 
@@ -23,7 +23,9 @@ export const signUp = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'User already exists' });
     }
 
-    const hash = await hashPasswordInWorker(password);
+    const salt = await bcrypt.genSalt(env.SALT_ROUNDS);
+    const hash = await bcrypt.hash(password, salt);
+
     if (!hash) {
       return res.status(500).json({ error: 'Failed to hash password' });
     }
@@ -54,7 +56,8 @@ export const signUp = async (req: Request, res: Response) => {
       message: 'Registration completed successfully!',
     });
   } catch (error) {
-    return res.status(500).json({ error: 'Internal server error' });
+    logger.error(error);
+    return res.status(500).json({ error: `Internal server error` });
   }
 };
 
@@ -100,6 +103,7 @@ export const signIn = async (req: Request, res: Response) => {
       message: 'Login successful!',
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -107,4 +111,19 @@ export const signIn = async (req: Request, res: Response) => {
 export const signOut = (req: Request, res: Response) => {
   res.clearCookie('token');
   res.status(200).json({ message: 'Logout successful!' });
+};
+
+export const getMe = async (req: Request, res: Response) => {
+  try {
+    const userId = req.userId;
+
+    const user = await UserModel.findById(userId);
+
+    res.status(200).json({
+      user,
+    });
+  } catch (error) {
+    logger.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 };
