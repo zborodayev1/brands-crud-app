@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { AxiosError } from 'axios';
+import z from 'zod';
 import { SignInPayload, SignUpPayload } from '../../interfaces/auth.interface';
 import { User } from '../../interfaces/user.interface';
 import api from '../api';
@@ -33,18 +34,21 @@ export const signUp = createAsyncThunk(
     const validated = signUpSchema.safeParse(payload);
 
     if (!validated.success) {
-      return rejectWithValue(validated.error.flatten().fieldErrors);
+      const treeified = z.treeifyError(validated.error);
+      return rejectWithValue(treeified.errors);
     }
 
     try {
       const { data } = await api.post(`/auth/sign-up`, validated.data);
 
-      const parsedData = signUpResponseSchema.safeParse(data);
-      if (!parsedData.success) {
-        return rejectWithValue(parsedData.error.flatten().fieldErrors);
+      const parsed = signUpResponseSchema.safeParse(data);
+
+      if (!parsed.success) {
+        const treeified = z.treeifyError(parsed.error);
+        return rejectWithValue(treeified.errors);
       }
 
-      return parsedData.data;
+      return parsed.data;
     } catch (error) {
       if (error instanceof AxiosError) {
         return rejectWithValue(error.response?.data || 'Failed to sign up');
@@ -62,7 +66,8 @@ export const signIn = createAsyncThunk(
     const validated = signInSchema.safeParse(payload);
 
     if (!validated.success) {
-      return rejectWithValue(validated.error.flatten().fieldErrors);
+      const treeified = z.treeifyError(validated.error);
+      return rejectWithValue(treeified.errors);
     }
 
     try {
@@ -71,7 +76,8 @@ export const signIn = createAsyncThunk(
       const parsed = signInResponseSchema.safeParse(data);
 
       if (!parsed.success) {
-        return rejectWithValue(parsed.error.flatten().fieldErrors);
+        const treeified = z.treeifyError(parsed.error);
+        return rejectWithValue(treeified.errors);
       }
 
       return parsed.data;
@@ -92,6 +98,19 @@ export const signOut = createAsyncThunk('auth/signOut', async (_, { rejectWithVa
   } catch (error) {
     if (error instanceof AxiosError) {
       return rejectWithValue(error.response?.data || 'Failed to sign out');
+    } else {
+      return rejectWithValue('An unknown error occurred');
+    }
+  }
+});
+
+export const getMe = createAsyncThunk('auth/getMe', async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await api.get(`/auth/me`);
+    return data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return rejectWithValue(error.response?.data || 'Failed to get me');
     } else {
       return rejectWithValue('An unknown error occurred');
     }
@@ -134,7 +153,6 @@ const authSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload as string;
       })
-
       .addCase(signOut.pending, (state) => {
         state.status = 'loading';
         state.error = null;
@@ -147,6 +165,21 @@ const authSlice = createSlice({
         state.loading = false;
       })
       .addCase(signOut.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload as string;
+      })
+      .addCase(getMe.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(getMe.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.user = action.payload.user;
+        state.isAuth = true;
+        state.error = null;
+        state.loading = false;
+      })
+      .addCase(getMe.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload as string;
       });

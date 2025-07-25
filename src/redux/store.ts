@@ -12,10 +12,12 @@ import {
   REHYDRATE,
 } from 'redux-persist';
 import { persistConfig } from './persist';
-import { authReducer } from './slices/authSlice';
+import { authReducer } from './slices/auth.slice';
+import { brandReducer } from './slices/brand.slice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  brands: brandReducer,
 });
 
 const store = configureStore({

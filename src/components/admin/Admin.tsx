@@ -1,0 +1,111 @@
+import { Edit2, Eye, Plus, Trash2 } from 'lucide-react';
+import { Brand } from '../../interfaces/brand.interface';
+import { useAppSelector } from '../../redux/store';
+
+const Admin = () => {
+  const brands = useAppSelector((state) => state.brands.brands);
+
+  return (
+    <div className="max-w-7xl mx-auto px-8 py-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Управление брендами</h1>
+          <p className="mt-2 text-gray-600">Добавляйте, редактируйте и удаляйте бренды</p>
+        </div>
+
+        <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <Plus className="w-5 h-5 mr-2" />
+          Добавить бренд
+        </button>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        {brands.length === 0 ? (
+          <div className="text-center py-12">
+            <Plus className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Нет брендов</h3>
+            <p className="text-gray-600">Начните с добавления первого бренда</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Название
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Описание
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Дата создания
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Действия
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {brands.map((brand: Brand) => (
+                  <tr key={brand._id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {brand.name}
+                        {brand.logoUrl && (
+                          <img
+                            src={brand.logoUrl}
+                            alt={`${brand.name} logo`}
+                            className="inline-block w-6 h-6 ml-2 object-contain"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                            }}
+                          />
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-gray-600 max-w-xs truncate">
+                        {brand.description}
+                      </div>
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {(brand.createdAt instanceof Date
+                        ? brand.createdAt
+                        : new Date(brand.createdAt)
+                      ).toLocaleDateString('ru-RU')}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex items-center justify-end space-x-2">
+                        <button
+                          className="p-1 text-gray-600 hover:text-gray-800 transition-colors"
+                          title="Просмотр"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          className="p-1 text-blue-600 hover:text-blue-800 transition-colors"
+                          title="Редактировать"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          className="p-1 text-red-600 hover:text-red-800 transition-colors"
+                          title="Удалить"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Admin;

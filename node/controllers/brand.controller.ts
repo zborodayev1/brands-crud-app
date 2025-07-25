@@ -1,5 +1,7 @@
+import dayjs from 'dayjs';
 import { Request, Response } from 'express';
 import { BrandModel } from '../models/brand.model';
+import { logger } from '../utils/logger';
 import { brandIdSchema, brandQuerySchema, createBrandSchema } from '../validators/brand.validator';
 
 export const createBrand = async (req: Request, res: Response) => {
@@ -19,10 +21,15 @@ export const createBrand = async (req: Request, res: Response) => {
     await newBrand.save();
 
     res.status(201).json({
-      brand: newBrand,
+      brand: {
+        ...newBrand.toObject(),
+        createdAt: dayjs(newBrand.createdAt).format('YYYY-MM-DD'),
+        updatedAt: dayjs(newBrand.updatedAt).format('YYYY-MM-DD'),
+      },
       message: 'Brand created successfully!',
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -60,7 +67,11 @@ export const getBrands = async (req: Request, res: Response) => {
     ]);
 
     res.status(200).json({
-      data: brands,
+      data: brands.map((brand) => ({
+        ...brand.toObject(),
+        createdAt: dayjs(brand.createdAt).format('YYYY-MM-DD'),
+        updatedAt: dayjs(brand.updatedAt).format('YYYY-MM-DD'),
+      })),
       pagination: {
         total,
         page,
@@ -69,6 +80,7 @@ export const getBrands = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -89,8 +101,15 @@ export const getBrandById = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Brand not found' });
     }
 
-    res.status(200).json({ brand });
+    res.status(200).json({
+      brand: {
+        ...brand.toObject(),
+        createdAt: dayjs(brand.createdAt).format('YYYY-MM-DD'),
+        updatedAt: dayjs(brand.updatedAt).format('YYYY-MM-DD'),
+      },
+    });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -111,7 +130,7 @@ export const updateBrand = async (req: Request, res: Response) => {
   const { name, description, logoUrl } = validateData.data;
 
   const existingBrand = await BrandModel.findOne({ name });
-  if (existingBrand) return res.status(400).json({ error: 'Brand already exists' });
+  if (!existingBrand) return res.status(400).json({ error: 'Brand not exists' });
 
   try {
     const updatedBrand = await BrandModel.findByIdAndUpdate(
@@ -125,10 +144,15 @@ export const updateBrand = async (req: Request, res: Response) => {
     }
 
     res.status(200).json({
-      brand: updatedBrand,
+      brand: {
+        ...updatedBrand.toObject(),
+        createdAt: dayjs(updatedBrand.createdAt).format('YYYY-MM-DD'),
+        updatedAt: dayjs(updatedBrand.updatedAt).format('YYYY-MM-DD'),
+      },
       message: 'Brand updated successfully!',
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -153,6 +177,8 @@ export const deleteBrand = async (req: Request, res: Response) => {
       message: 'Brand deleted successfully!',
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({ error: 'Internal server error' });
   }
+  // Removed custom dayjs function, using dayjs library import instead.
 };
