@@ -18,11 +18,11 @@ const brandSchema = new Schema<Brand>(
     },
     description: {
       type: String,
-      default: '',
+      default: 'Без описания',
     },
     logoUrl: {
       type: String,
-      default: '',
+      default: 'https://www.svgrepo.com/show/443484/brand-thingiverse.svg',
     },
   },
   { timestamps: true },

@@ -2,8 +2,8 @@ import { Eye, EyeOff, LogIn } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { signIn } from '../../redux/slices/auth.slice';
-import { useAppDispatch, useAppSelector } from '../../redux/store';
+import { signIn } from '../../../redux/slices/auth.slice';
+import { useAppDispatch, useAppSelector } from '../../../redux/store';
 
 export const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -28,8 +28,10 @@ export const SignIn = () => {
   const onSubmit = async (values: { email: string; password: string }) => {
     try {
       setIsLoading(true);
-      await dispatch(signIn(values)).unwrap();
-      nav('/');
+      const resultAction = await dispatch(signIn(values)).unwrap();
+      if (signIn.fulfilled.match(resultAction)) {
+        nav('/');
+      }
     } catch (err: unknown) {
       setError('root', {
         type: 'manual',
@@ -54,11 +56,13 @@ export const SignIn = () => {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          {errors.root && errors.root?.message?.length > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-sm text-red-600">{errors.root.message}</p>
-            </div>
-          )}
+          {errors?.root &&
+            typeof errors.root.message === 'string' &&
+            errors.root.message.length > 0 && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <p className="text-sm text-red-600">{errors.root.message}</p>
+              </div>
+            )}
 
           <div className="space-y-4">
             <div>

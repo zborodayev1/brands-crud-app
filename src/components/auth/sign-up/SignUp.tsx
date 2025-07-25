@@ -2,10 +2,10 @@ import { Eye, EyeOff, UserPlus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
-import { signUp } from '../../redux/slices/auth.slice';
-import { useAppDispatch, useAppSelector } from '../../redux/store';
-import { PasswordStrengthBar } from '../../ui/password';
-import { getPasswordStrength } from '../../utils/password';
+import { signUp } from '../../../redux/slices/auth.slice';
+import { useAppDispatch, useAppSelector } from '../../../redux/store';
+import { PasswordStrengthBar } from '../../../ui/password';
+import { getPasswordStrength } from '../../../utils/password';
 
 export const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,7 +20,6 @@ export const SignUp = () => {
     handleSubmit,
     setError,
     watch,
-    clearErrors,
     formState: { isValid, errors },
   } = useForm({
     defaultValues: {
@@ -58,8 +57,10 @@ export const SignUp = () => {
     }
     try {
       const { confirmPassword, ...data } = values;
-      await dispatch(signUp(data)).unwrap();
-      nav('/');
+      const resultAction = await dispatch(signUp(data)).unwrap();
+      if (signUp.fulfilled.match(resultAction)) {
+        nav('/');
+      }
     } catch (err: unknown) {
       setError('root', {
         type: 'manual',
@@ -80,7 +81,7 @@ export const SignUp = () => {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          {errors.root && errors.root?.message?.length > 0 && (
+          {errors.root?.message && errors.root.message.length > 0 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3">
               <p className="text-sm text-red-600">{errors.root.message}</p>
             </div>
@@ -193,7 +194,7 @@ export const SignUp = () => {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isLoading || !isValid}
             className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isLoading ? 'Создание аккаунта...' : 'Зарегистрироваться'}

@@ -6,3 +6,9 @@ export interface Brand {
   createdAt: Date | string;
   updatedAt: Date | string;
 }
+
+export interface brandPayload {
+  name: string;
+  description: string;
+  logoUrl: string;
+}
