@@ -3,8 +3,8 @@ export interface Brand {
   name: string;
   description: string;
   logoUrl: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface brandPayload {

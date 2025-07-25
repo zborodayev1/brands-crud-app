@@ -88,10 +88,7 @@ const Admin = () => {
                     </td>
 
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {(brand.createdAt instanceof Date
-                        ? brand.createdAt
-                        : new Date(brand.createdAt)
-                      ).toLocaleDateString('ru-RU')}
+                      {brand.createdAt}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-2">
