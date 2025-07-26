@@ -1,9 +1,8 @@
 import { Home, LogIn, LogOut, Settings } from 'lucide-react';
 import { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { getMe, signOut } from '../../redux/slices/auth.slice';
-import { getBrands } from '../../redux/slices/brand.slice';
-import { useAppDispatch, useAppSelector } from '../../redux/store';
+import { getMe, signOut } from '../../../redux/slices/auth.slice';
+import { useAppDispatch, useAppSelector } from '../../../redux/store';
 
 const Header = () => {
   const location = useLocation();
@@ -15,10 +14,6 @@ const Header = () => {
 
   useEffect(() => {
     dispatch(getMe());
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(getBrands());
   }, [dispatch]);
 
   const handleSignOut = () => {

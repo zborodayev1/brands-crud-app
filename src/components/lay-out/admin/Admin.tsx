@@ -1,28 +1,50 @@
-import { Edit2, Eye, Plus, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Edit2, Eye, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Brand } from '../../../interfaces/brand.interface';
-import { deleteBrand, getBrands } from '../../../redux/slices/brand.slice';
+import { deleteBrand, getBrands, PaginationType } from '../../../redux/slices/brand.slice';
 import { useAppDispatch, useAppSelector } from '../../../redux/store';
+import { Pagination } from '../../../ui/pagination';
 
 const Admin = () => {
   const brands = useAppSelector((state) => state.brands.brands);
   const loading = useAppSelector((state) => state.brands.loading);
+  const reduxPagination = useAppSelector((state) => state.brands.pagination);
   const dispatch = useAppDispatch();
   const nav = useNavigate();
+  const [searchInput, setSearchInput] = useState<string>('');
+  const [pagination, setPagination] = useState<PaginationType>({
+    page: 1,
+    limit: 10,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+    search: '',
+  });
+
+  const handlePageChange = (newPage: number) => {
+    setPagination((prev) => ({
+      ...prev,
+      page: newPage,
+    }));
+  };
 
   const handleDelete = async (id: string) => {
     if (id) {
       const resultAction = await dispatch(deleteBrand(id));
       if (deleteBrand.fulfilled.match(resultAction)) {
         nav('/admin');
-        dispatch(getBrands());
+        dispatch(getBrands(pagination));
       }
     }
   };
 
+  useEffect(() => {
+    dispatch(getBrands(pagination));
+  }, [dispatch, pagination]);
+
   return (
     <div className="max-w-7xl mx-auto px-8 py-8">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between ">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Управление брендами</h1>
           <p className="mt-2 text-gray-600">Добавляйте, редактируйте и удаляйте бренды</p>
@@ -36,7 +58,14 @@ const Admin = () => {
           Добавить бренд
         </Link>
       </div>
-
+      <div className="flex mt-5 mb-8">
+        <Pagination
+          searchInput={searchInput}
+          setSearchInput={setSearchInput}
+          pagination={pagination}
+          setPagination={setPagination}
+        />
+      </div>
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         {brands.length === 0 && !loading ? (
           <div className="text-center py-12">
@@ -123,6 +152,25 @@ const Admin = () => {
             </table>
           </div>
         )}
+      </div>
+      <div className="flex justify-center items-center mt-8 space-x-4">
+        <button
+          onClick={() => handlePageChange(Math.max(pagination.page - 1, 1))}
+          disabled={pagination.page === 1}
+          className="p-2 rounded-md border disabled:opacity-50"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <span className="text-sm text-gray-700">
+          Страница {pagination.page} из {reduxPagination?.totalPages || '?'}
+        </span>
+        <button
+          onClick={() => handlePageChange(pagination.page + 1)}
+          disabled={reduxPagination && pagination.page >= reduxPagination.totalPages}
+          className="p-2 rounded-md border disabled:opacity-50"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
       </div>
     </div>
   );

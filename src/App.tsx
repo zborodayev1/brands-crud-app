@@ -4,8 +4,8 @@ import { SignUp } from './components/auth/sign-up/SignUp';
 import { CreateBrand } from './components/brands/create-brand/CreateBrand';
 import { FullBrand } from './components/brands/full-brand/FullBrand';
 import { UpdateBrand } from './components/brands/update-brand/UpdateBrand';
-import Header from './components/header/Header';
 import Admin from './components/lay-out/admin/Admin';
+import Header from './components/lay-out/header/Header';
 import { Home } from './components/lay-out/home/Home';
 
 export const App = () => {
