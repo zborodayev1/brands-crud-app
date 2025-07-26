@@ -25,25 +25,38 @@ interface BrandState {
   loading: boolean;
 }
 
-export const getBrands = createAsyncThunk('brand/getBrands', async (_, { rejectWithValue }) => {
-  try {
-    const { data } = await api.get('/brand');
+export interface PaginationType {
+  page: number;
+  limit: number;
+  sortBy: 'name' | 'createdAt' | 'updatedAt';
+  sortOrder: 'asc' | 'desc';
+  search: string;
+}
 
-    const parsed = getBrandsResponseSchema.safeParse(data);
+export const getBrands = createAsyncThunk(
+  'brand/getBrands',
+  async ({ page, limit, sortBy, sortOrder, search }: PaginationType, { rejectWithValue }) => {
+    try {
+      const { data } = await api.get(
+        `/brand?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}&search=${search}`,
+      );
 
-    if (!parsed.success) {
-      return rejectWithValue(parsed.error.flatten());
+      const parsed = getBrandsResponseSchema.safeParse(data);
+
+      if (!parsed.success) {
+        return rejectWithValue(parsed.error.flatten());
+      }
+
+      return parsed.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        return rejectWithValue(error.response?.data || 'Failed to fetch brands');
+      } else {
+        return rejectWithValue('An unknown error occurred');
+      }
     }
-
-    return parsed.data;
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch brands');
-    } else {
-      return rejectWithValue('An unknown error occurred');
-    }
-  }
-});
+  },
+);
 
 export const createBrand = createAsyncThunk(
   'brand/createBrand',

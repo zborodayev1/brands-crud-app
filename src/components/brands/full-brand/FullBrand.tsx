@@ -16,7 +16,15 @@ export const FullBrand = () => {
       const resultAction = await dispatch(deleteBrand(id));
       if (deleteBrand.fulfilled.match(resultAction)) {
         nav('/admin');
-        dispatch(getBrands());
+        dispatch(
+          getBrands({
+            page: 1,
+            limit: 10,
+            sortBy: 'createdAt',
+            sortOrder: 'desc',
+            search: '',
+          }),
+        );
       }
     }
   };
