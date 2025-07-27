@@ -1,8 +1,10 @@
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { NextFunction, Request, Response } from 'express';
+import swaggerUi from 'swagger-ui-express';
 import { connectDB } from './config/db';
 import * as env from './config/env';
+import { swaggerSpec } from './config/swagger';
 import AuthRouter from './routes/auth.router';
 import BrandRouter from './routes/brand.router';
 import { logger } from './utils/logger';
@@ -22,6 +24,7 @@ app.use(cookieParser());
 
 app.use('/api/auth', AuthRouter);
 app.use('/api/brand', BrandRouter);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 interface CustomError extends Error {
   status?: number;
