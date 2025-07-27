@@ -1,0 +1,20 @@
+
+FROM node:20.12-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY vite.config.* ./
+COPY tsconfig.json ./
+COPY tsconfig.app.json ./
+COPY src ./src
+COPY index.html .
+
+RUN npm install
+RUN npm run build
+
+RUN npm install -g serve
+
+EXPOSE 4173
+
+CMD ["serve", "-s", "dist"]
