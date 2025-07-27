@@ -13,9 +13,16 @@ await connectDB();
 
 const app = express();
 
+const allowedOrigins = ['http://localhost:5173', 'https://brands-crud-app.vercel.app/'];
+
 app.use(
   cors({
-    origin: env.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   }),
 );
