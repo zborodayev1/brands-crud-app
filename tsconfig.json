@@ -3,17 +3,10 @@
     "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "Node",
-    "allowJs": true,
-    "checkJs": false,
-    "jsx": "react-jsx",
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "isolatedModules": true,
-    "resolveJsonModule": true
-  },
-  "include": ["src", "node"],
-  "exclude": ["dist", "node_modules"]
+    "resolveJsonModule": true,
+    "forceConsistentCasingInFileNames": true
+  }
 }
