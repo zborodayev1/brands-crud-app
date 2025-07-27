@@ -1,13 +1,39 @@
+FROM node:20.12-alpine AS builder
+
+ENV HOME /home/node
+
+WORKDIR $HOME/app/
+
+COPY package*.json ./
+COPY tsup.config.ts ./
+COPY .env.example ./
+
+RUN npm i -q
+
+COPY ./node $HOME/app/node
+
+RUN npm run build:server
+
+RUN npm prune --production
 
 FROM node:20.12-alpine
 
-WORKDIR /app
+USER node
 
-COPY package*.json ./
-COPY build-server ./build-server
+ENV HOME /home/node
 
-RUN npm install --omit=dev
+WORKDIR $HOME/app/
 
-EXPOSE 3000
+COPY --chown=node:node --from=builder $HOME/app/build-server/ .
+COPY --chown=node:node --from=builder $HOME/app/package.json .
+COPY --chown=node:node --from=builder $HOME/app/node_modules ./node_modules
+COPY --chown=node:node --from=builder $HOME/app/.env.example .
 
-CMD ["node", "build-server/app.js"]
+ENV NODE_ENV production
+ENV HTTP_PORT 3000
+
+EXPOSE ${HTTP_PORT}
+
+CMD ["node", "app.js"]
+
+
